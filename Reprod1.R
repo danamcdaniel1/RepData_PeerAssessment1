@@ -1,5 +1,6 @@
 loaddata <- function(){
-    read.csv("C://Users//mcdanid2//Desktop//activity.csv", stringsAsFactors = F, header = T)
+    read.csv("C:\\Users\\Dianshi\\Desktop\\Laptop Stuff\\Reproducible research\\Peer Assessment 1\\activity.csv",
+             stringsAsFactors = F, header = T)
 }
 
 as.datetime <- function(date = "", time = ""){
@@ -57,18 +58,24 @@ lines(e$interval, e$steps, col = "blue")
 ## weekend vs. weekday comparisons.
 
 f <- c
-f[weekdays(as.Date(f$date)) == "Saturday" | weekdays(as.Date(f$date)) == "Sunday", "isWeekend" ] <- 1
-fweekend <- f[f$isWeekend == 1,]
-fweekday <- f[f$isWeekend == 0,]
+f$day <- weekdays(as.Date(f$date))
+fweekend <- f[f$day == "Saturday" | f$day == "Sunday",]
+fweekday <- f[!(f$day == "Saturday" | f$day == "Sunday"),]
 fweekendactivity <- aggregate(fweekend$"steps", by = list(fweekend$"interval"), function(x) mean(x, na.rm = T)) 
 fweekdayactivity <- aggregate(fweekday$"steps", by = list(fweekday$"interval"), function(x) mean(x, na.rm = T)) 
-plot(fweekdayactivity$interval, fweekdayactivity$steps, type = 'n', xlab = "time", ylab = "steps", main = "weekday activity pattern")
 names(fweekdayactivity) <- c("interval", "steps")
 names(fweekendactivity) <- c("interval", "steps")
+plot(fweekdayactivity$interval, fweekdayactivity$steps, 
+     type = 'n', 
+     xlab = "time", 
+     ylab = "steps", 
+     main = "weekday activity pattern")
 lines(fweekdayactivity$interval, fweekdayactivity$steps, col = "red")
 lines(fweekendactivity$interval, fweekendactivity$steps, col = "blue")
 diffweekendsteps <- fweekendactivity$steps - fweekdayactivity$steps
 lines(fweekendactivity$interval, diffweekendsteps, col = "orange")
+colfunc <- colorRampPalette(c("blue", "red"))
+dailydiff <- c(fweekendactivity$interval, diffweekendsteps)
 
 setwd("C:\\Users\\Dianshi\\Desktop\\Laptop Stuff\\Reproducible research\\Peer Assessment 1")
 png("ComparisonPlot.png", height = 480, width = 480)
@@ -77,13 +84,18 @@ plot(fweekdayactivity$interval, fweekdayactivity$steps,
      type = 'l',
      xlab = 'Time',
      ylab = 'Steps',
-     main = "Weekday activity")
+     main = "Weekday activity",
+     col  = 'black')
 plot(fweekdayactivity$interval, fweekdayactivity$steps,
      type = 'l',
      xlab = 'Time',
      ylab = 'Steps',
-     main = "Weekend activity")
+     main = "Weekend activity",
+     col  = "black")
 plot(fweekdayactivity$interval, diffweekendsteps,
      type = 'l',
-     xlab - 'Time', 
-     ylab = 'Difference in activity')
+     xlab = 'Time', 
+     ylab = 'Difference in activity',
+     main = 'Difference between weekdays and weekends',
+     col = colfunc(length(diffweekendsteps)))
+dev.off()
